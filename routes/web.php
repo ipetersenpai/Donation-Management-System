@@ -6,6 +6,10 @@ use App\Http\Controllers\SMTP\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
 Route::prefix('auth')->middleware(['web'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);

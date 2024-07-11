@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('first_name', 50);
-            $table->string('middle_name', 50);
+            $table->string('middle_name', 50)->nullable();
             $table->string('last_name', 50);
+            $table->string('role', 20)->default('Donator');
             $table->string('suffix')->nullable();
             $table->dateTime('birth_date');
             $table->string('contact_no', 11);
@@ -43,6 +44,86 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::create('donation_categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('category_name', 255);
+        });
+
+        Schema::create('donations', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('category_id');
+            $table->decimal('amount', 10, 2);
+            $table->string('status', 50);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('user_id');
+            $table->index('category_id');
+        });
+
+        Schema::create('payment_gateways', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('donation_id');
+            $table->string('method', 50);
+            $table->string('transaction_id', 255);
+            $table->string('status', 50);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('donation_id');
+        });
+
+        Schema::create('receipts', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('donation_id');
+            $table->string('receipt_number', 255);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('donation_id');
+        });
+
+        Schema::create('donation_history', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('donation_id');
+            $table->string('status', 50);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('user_id');
+            $table->index('donation_id');
+        });
+
+        Schema::create('reports', function (Blueprint $table) {
+            $table->id();
+            $table->string('report_type', 50);
+            $table->date('period_start');
+            $table->date('period_end');
+            $table->timestamps();
+        });
+
+        Schema::create('fund_allocation', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('category_id');
+            $table->decimal('allocated_amount', 10, 2);
+            $table->timestamps();
+
+            // Indexes
+            $table->index('category_id');
+        });
+
+        Schema::create('financial_reports', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('report_id');
+            $table->text('description');
+            $table->timestamps();
+
+            // Indexes
+            $table->index('report_id');
+        });
     }
 
     /**
@@ -53,5 +134,13 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('donation_categories');
+        Schema::dropIfExists('donations');
+        Schema::dropIfExists('payment_gateways');
+        Schema::dropIfExists('receipts');
+        Schema::dropIfExists('donation_history');
+        Schema::dropIfExists('reports');
+        Schema::dropIfExists('fund_allocation');
+        Schema::dropIfExists('financial_reports');
     }
 };

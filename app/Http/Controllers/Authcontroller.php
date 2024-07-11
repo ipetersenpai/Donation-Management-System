@@ -21,6 +21,18 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            // Check if the user is verified
+            if (!$user->verified_status) {
+                // Resend verification email
+                Mail::to($user->email)->send(new CustomVerificationMail($user));
+
+                return back()->withErrors([
+                    'email' => 'Email is not verified. We have sent you a link on your email to verify your account.',
+                ]);
+            }
+
             $request->session()->regenerate();
             return redirect()->intended('dashboard');
         }
