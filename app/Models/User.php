@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Mail\CustomResetPassword;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Config;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -65,5 +66,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendPasswordResetNotification($token)
     {
         Mail::to($this->email)->send(new CustomResetPassword($token, $this->email));
+    }
+
+    public function updateSessionTimeout()
+    {
+        $configSessionLifetime = Config::get('session.lifetime');
+        $newSessionLifetime = 30; // 30 minutes
+
+        if ($newSessionLifetime > $configSessionLifetime) {
+            Config::set('session.lifetime', $newSessionLifetime);
+        }
     }
 }

@@ -23,9 +23,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            // Check if the user is verified
             if (!$user->verified_status) {
-                // Resend verification email
                 Mail::to($user->email)->send(new CustomVerificationMail($user));
 
                 return back()->withErrors([
@@ -34,6 +32,8 @@ class AuthController extends Controller
             }
 
             $request->session()->regenerate();
+            $user->updateSessionTimeout();
+
             return redirect()->intended('dashboard');
         }
 
