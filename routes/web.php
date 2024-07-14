@@ -78,4 +78,9 @@ Route::middleware(['auth', 'verified'])
         Route::delete('/{category}', [DonationCategoryController::class, 'destroy'])->name('categories.destroy');
     });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::post('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+});
+
 Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');

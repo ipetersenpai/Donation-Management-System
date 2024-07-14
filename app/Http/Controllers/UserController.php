@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -105,6 +106,36 @@ class UserController extends Controller
             return redirect()->route('users.index')->with('success', 'User deleted successfully');
         } catch (\Exception $e) {
             return redirect()->route('users.index')->with('error', 'Failed to delete user');
+        }
+    }
+
+    public function profile()
+    {
+        $user = Auth::user();
+        return view('pages.profile', compact('user'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:50',
+            'middle_name' => 'nullable|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'suffix' => 'nullable|string|max:50',
+            'birth_date' => 'required|date',
+            'contact_no' => 'required|string|max:11',
+            'home_address' => 'required|string|max:255',
+            'gender' => 'required|string|max:6',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        // Update the user data
+        if ($user->update($validatedData)) {
+            return redirect()->back()->with('success', 'Profile updated successfully');
+        } else {
+            return redirect()->back()->with('error', 'Failed to update profile');
         }
     }
 }
