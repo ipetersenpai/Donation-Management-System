@@ -16,45 +16,26 @@ class Users extends Seeder
      */
     public function run()
     {
-        // Example user data
-        $users = [
-            [
-                'first_name' => 'John',
-                'middle_name' => 'Doe',
-                'last_name' => 'Smith',
-                'role' => 'Admin',
-                'suffix' => 'Jr.',
-                'birth_date' => '1990-01-01',
-                'contact_no' => '1234567890',
-                'home_address' => '123 Main St, Anytown',
-                'gender' => 'Male',
-                'email' => 'johndoe@example.com',
-                'verified_status' => true,
-                'email_verified_at' => now(),
-                'password' => Hash::make('admin123'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'first_name' => 'Jane',
+        // Generate 100 users
+        for ($i = 1; $i <= 200; $i++) {
+            $users[] = [
+                'first_name' => 'User' . $i,
                 'middle_name' => null,
                 'last_name' => 'Doe',
-                'role' => 'Donator',
+                'role' => 'User',
                 'suffix' => null,
-                'birth_date' => '1995-05-15',
-                'contact_no' => '0987654321',
-                'home_address' => '456 Elm St, Othertown',
-                'gender' => 'Female',
-                'email' => 'jane@example.com',
-                'verified_status' => false,
-                'email_verified_at' => null,
-                'password' => Hash::make('admin123'),
+                'birth_date' => now()->subYears(rand(18, 60))->format('Y-m-d'), // Random birth date between 18 to 60 years ago
+                'contact_no' => '1234567890', // Dummy contact number
+                'home_address' => 'Address ' . $i,
+                'gender' => rand(0, 1) ? 'Male' : 'Female', // Random gender
+                'email' => 'user' . $i . '@example.com',
+                'verified_status' => rand(0, 1), // Random verified status
+                'email_verified_at' => rand(0, 1) ? now() : null,
+                'password' => Hash::make('password'), // Default password for all users
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-            // Add more users as needed
-        ];
-
+            ];
+        }
         // Insert the users into the database
         DB::table('users')->insert($users);
     }

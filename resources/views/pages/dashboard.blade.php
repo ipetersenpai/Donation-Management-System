@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
-@include('layouts.navbar')
+    @include('layouts.navbar')
     <div class="container-fluid">
         <div class="row">
             @include('layouts.sidebar')
             <!-- Main Content -->
-            <div class="col-md-9 col-lg-10 content">
-                <h1>Welcome to Dashboard</h1>
+            <div class="col-md-9 col-lg-10 content" style="background: #f4f7fc">
+                <h2>Welcome to Dashboard</h2>
                 <div class="row">
                     <div class="col-md-3">
                         <div class="card">

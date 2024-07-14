@@ -5,6 +5,7 @@ use App\Http\Controllers\SMTP\ForgotPasswordController;
 use App\Http\Controllers\SMTP\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 
 Route::prefix('auth')
     ->middleware(['web'])
@@ -52,5 +53,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('dashboard');
     });
 });
+
+// User management routes
+Route::middleware(['auth', 'verified'])
+    ->prefix('users')
+    ->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('users.index');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::get('/users/search', [UserController::class, 'search'])->name('users.search');
+        Route::put('/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    });
 
 Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
