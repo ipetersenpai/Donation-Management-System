@@ -65,4 +65,17 @@ Route::middleware(['auth', 'verified'])
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
+use App\Http\Controllers\DonationCategoryController;
+
+// Donation Category Routes
+Route::middleware(['auth', 'verified'])
+    ->prefix('categories')
+    ->group(function () {
+        Route::get('/', [DonationCategoryController::class, 'index'])->name('categories.index');
+        Route::post('/', [DonationCategoryController::class, 'store'])->name('categories.store');
+        Route::get('/search', [DonationCategoryController::class, 'search'])->name('categories.search');
+        Route::put('/{category}', [DonationCategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/{category}', [DonationCategoryController::class, 'destroy'])->name('categories.destroy');
+    });
+
 Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');

@@ -10,7 +10,7 @@
         <div class="row" style="height: 100%; overflow-y: hidden !important;">
             @include('layouts.sidebar')
             <!-- Main Content -->
-            <div class="relative col-md-9 col-lg-10 content" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="relative col-md-9 col-lg-10 content" style="height: 100%; display: flex; flex-direction: column; ">
 
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -30,20 +30,26 @@
                     </div>
                 @endif
 
-                <h2 style="margin-top: {{ session('success') || session('error') ? '0' : '20px' }};">User Information</h2>
-                <!-- Search Input -->
-                <form action="{{ route('users.search') }}" method="GET"
-                    class="d-flex flex-sm-col flex-md-row gap-2 justify-content-start my-3">
-                    <div class="form-group">
-                        <input type="text" style="width: 250px" name="search" class="form-control"
-                            placeholder="Search...">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Search</button>
-                </form>
+                <div class="header" style="margin-top: {{ session('success') || session('error') ? '0' : '20px' }};">
+                    <h3>User Information
+                    </h3>
+                </div>
 
-                <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#createUserModal">
-                    Create User
-                </button>
+                <div class="d-flex w-full flex-md-row flex-column justify-content-between">
+                    <!-- Search Input -->
+                    <form action="{{ route('users.search') }}" method="GET"
+                        class="d-flex flex-sm-col flex-md-row gap-2 justify-content-start my-3">
+                        <div class="form-group">
+                            <input type="text" style="width: 250px" name="search" class="form-control"
+                                placeholder="Search...">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </form>
+                    <button type="button" class="btn btn-primary my-md-3 my-2" data-toggle="modal"
+                        data-target="#createUserModal">
+                        Create User
+                    </button>
+                </div>
 
                 <!-- Responsive DataTable -->
                 <div class="table-responsive" style="overflow-y: auto; height: 65vh; border: 1px solid #f2f2f2;">
@@ -359,9 +365,22 @@
             </div>
         </div>
     </div>
-@endsection
 
-@section('scripts')
+
+
+    <style>
+        .header {
+            padding: 7px;
+            color: white;
+            border-radius: 5px;
+            padding-left: 10px;
+            background: linear-gradient(to bottom,
+                    rgba(127, 6, 14, 0.944),
+                    rgba(160, 8, 36, 0.911));
+
+        }
+    </style>
+
     <script>
         $(document).ready(function() {
             var table = $('#userTable').DataTable({

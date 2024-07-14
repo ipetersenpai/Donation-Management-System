@@ -1,8 +1,12 @@
 <div class="navbar-container">
+
     <div class="d-flex gap-2 align-items-center justify-content-center">
-        <img src="{{ asset('assets/Logo.png') }}" style="width: 40px;" alt="logo">
-        <h5 style="font-weight: 600;">Donation Management System</h5>
+        <a href="{{ env('BASE_URL') }}/dashboard">
+            <img src="{{ asset('assets/Logo.png') }}" style="width: 40px;" alt="logo">
+        </a>
+        <h5 class="navbar-title" style="font-weight: 600;">Donation Management System</h5>
     </div>
+
 
     <form id="profile-form" class="open-menu d-flex align-items-center justify-content-center gap-1" <p>Hello,
         {{ auth()->user()->first_name }}!</p>
@@ -98,5 +102,11 @@
     .open-menu:hover {
         color: #0d6efd;
         cursor: pointer;
+    }
+
+    @media (max-width: 576px) {
+        .navbar-title {
+            display: none;
+        }
     }
 </style>

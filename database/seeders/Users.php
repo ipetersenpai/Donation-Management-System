@@ -17,7 +17,7 @@ class Users extends Seeder
     public function run()
     {
         // Generate 100 users
-        for ($i = 1; $i <= 200; $i++) {
+        for ($i = 6; $i <= 100; $i++) {
             $users[] = [
                 'first_name' => 'User' . $i,
                 'middle_name' => null,
