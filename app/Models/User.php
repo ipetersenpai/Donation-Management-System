@@ -9,10 +9,11 @@ use Illuminate\Notifications\Notifiable;
 use App\Mail\CustomResetPassword;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Config;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasFactory,HasApiTokens, Notifiable;
 
     /**
      * The attributes that are mass assignable.

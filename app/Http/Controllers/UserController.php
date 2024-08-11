@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -136,6 +137,24 @@ class UserController extends Controller
             return redirect()->back()->with('success', 'Profile updated successfully');
         } else {
             return redirect()->back()->with('error', 'Failed to update profile');
+        }
+    }
+
+    public function changePassword(Request $request)
+    {
+        // Validate request inputs
+        $request->validate([
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // Update the user's password
+        $user = Auth::user();
+        $user->password = Hash::make($request->new_password);
+
+        if ($user->save()) {
+            return response()->json(['success' => true]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Failed to update password. Please try again.'], 500);
         }
     }
 }

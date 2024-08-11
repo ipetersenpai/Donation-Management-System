@@ -29,7 +29,8 @@
         Profile
     </a>
 
-    <p class="text-style d-flex gap-2 align-items-center" style="padding: 7px; margin: 0;">
+    <p id="open-change-password-modal" class="text-style d-flex gap-2 align-items-center"
+        style="padding: 7px; margin: 0;">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
             class="bi bi-gear-fill" viewBox="0 0 16 16">
             <path
@@ -53,6 +54,38 @@
     </form>
 </div>
 
+<!-- Modal for Change Password -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="change-password-form" action="{{ route('change.password') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="confirm_password" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                            required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const profileForm = document.getElementById('profile-form');
@@ -68,6 +101,16 @@
             if (!menuItem.contains(event.target) && !profileForm.contains(event.target)) {
                 menuItem.style.display = 'none';
             }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+
+        // Trigger modal on click
+        document.getElementById('open-change-password-modal').addEventListener('click', function(event) {
+            event.preventDefault();
+            changePasswordModal.show();
         });
     });
 </script>
