@@ -57,9 +57,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('category_id');
             $table->string('payment_option', 50);
             $table->decimal('amount', 10, 2);
-            $table->string('status', 50);
             $table->timestamps();
-
             // Indexes
             $table->index('user_id');
             $table->index('category_id');
