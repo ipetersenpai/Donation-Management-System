@@ -9,36 +9,46 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    // Endpoint for Login
     public function login(Request $request)
     {
-        // Validate the request data
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        // Attempt to log in the user
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Invalid login credentials'
             ], 401);
         }
 
-        // Get the authenticated user
         $user = Auth::user();
-
-        // Create a new Sanctum token
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        // Return the token in the response
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
         ]);
     }
 
-    public function getUser(Request $request)
+    public function getUsersDetails(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user();
+
+        $userDetails = $user->only([
+            'first_name',
+            'middle_name',
+            'last_name',
+            'suffix',
+            'birth_date',
+            'contact_no',
+            'home_address',
+            'gender',
+            'email',
+            'role'
+        ]);
+
+        return response()->json($userDetails);
     }
 }
