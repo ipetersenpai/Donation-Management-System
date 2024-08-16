@@ -57,32 +57,12 @@ return new class extends Migration {
             $table->unsignedBigInteger('category_id');
             $table->string('payment_option', 50);
             $table->decimal('amount', 10, 2);
+            $table->string('attachment_file')->nullable();
+            $table->string('reference_no')->unique();
             $table->timestamps();
             // Indexes
             $table->index('user_id');
             $table->index('category_id');
-        });
-
-        Schema::create('payment_gateways', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('donation_id');
-            $table->string('method', 50);
-            $table->string('transaction_id', 255);
-            $table->string('status', 50);
-            $table->timestamps();
-
-            // Indexes
-            $table->index('donation_id');
-        });
-
-        Schema::create('receipts', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('donation_id');
-            $table->string('receipt_number', 255);
-            $table->timestamps();
-
-            // Indexes
-            $table->index('donation_id');
         });
 
         Schema::create('donation_history', function (Blueprint $table) {
