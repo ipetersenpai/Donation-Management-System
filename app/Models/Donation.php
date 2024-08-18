@@ -16,6 +16,7 @@ class Donation extends Model
         'amount',
         'attachment_file',
         'reference_no',
+        'approve_status',
     ];
 
     public function category()
@@ -38,8 +39,4 @@ class Donation extends Model
         return $this->hasMany(Receipt::class, 'donation_id');
     }
 
-    public function donationHistories()
-    {
-        return $this->hasMany(DonationHistory::class, 'donation_id');
-    }
 }

@@ -58,7 +58,9 @@ return new class extends Migration {
             $table->string('payment_option', 50);
             $table->decimal('amount', 10, 2);
             $table->string('attachment_file')->nullable();
-            $table->string('reference_no')->unique();
+            $table->string('reference_no')->nullable();
+            $table->string('approve_status')->default('pending');
+
             $table->timestamps();
             // Indexes
             $table->index('user_id');
