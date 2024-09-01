@@ -57,27 +57,13 @@ return new class extends Migration {
             $table->unsignedBigInteger('category_id');
             $table->string('payment_option', 50);
             $table->decimal('amount', 10, 2);
-            $table->string('attachment_file')->nullable();
-            $table->string('reference_no')->nullable();
-            $table->string('approve_status')->default('pending');
-
+            $table->string('reference_no');
             $table->timestamps();
             // Indexes
             $table->index('user_id');
             $table->index('category_id');
         });
 
-        Schema::create('donation_history', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('donation_id');
-            $table->string('status', 50);
-            $table->timestamps();
-
-            // Indexes
-            $table->index('user_id');
-            $table->index('donation_id');
-        });
 
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
@@ -120,7 +106,6 @@ return new class extends Migration {
         Schema::dropIfExists('donations');
         Schema::dropIfExists('payment_gateways');
         Schema::dropIfExists('receipts');
-        Schema::dropIfExists('donation_history');
         Schema::dropIfExists('reports');
         Schema::dropIfExists('fund_allocation');
         Schema::dropIfExists('financial_reports');

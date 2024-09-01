@@ -62,4 +62,9 @@ class User extends Authenticatable implements MustVerifyEmail
             Config::set('session.lifetime', $newSessionLifetime);
         }
     }
+
+    public function donations()
+    {
+        return $this->hasMany(Donation::class);
+    }
 }

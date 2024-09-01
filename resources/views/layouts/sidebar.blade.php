@@ -37,7 +37,7 @@
             </a>
         </li>
         <li>
-            <a href="#" class="menu-list">
+            <a href="{{ env('BASE_URL') }}/history" class="menu-list">
                 <i><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                         class="bi bi-file-earmark-text-fill" viewBox="0 0 16 16">
                         <path

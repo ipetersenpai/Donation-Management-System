@@ -14,9 +14,7 @@ class Donation extends Model
         'category_id',
         'payment_option',
         'amount',
-        'attachment_file',
         'reference_no',
-        'approve_status',
     ];
 
     public function category()

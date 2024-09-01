@@ -9,72 +9,61 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use App\Mail\DonationReceipt;
+use Illuminate\Support\Facades\Mail;
 
 
 class DonateController extends Controller
 {
     public function store(Request $request)
-    {
-        // Handle the file upload
-        $attachmentPath = null;
-        if ($request->hasFile('attachment_file')) {
-            $file = $request->file('attachment_file');
-            $filename = time() . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+{
+    // Validate the request data
+    $validated = $request->validate([
+        'category_id' => 'required|exists:donation_categories,id',
+        'payment_option' => 'required|string|max:50',
+        'amount' => 'required|numeric|min:0',
+        'reference_no' => 'required|string|unique:donations,reference_no',
+    ]);
 
-            // Create image manager with desired driver
-            $manager = new ImageManager(new Driver());
+    // Create a new donation record
+    $donation = Donation::create([
+        'user_id' => Auth::id(), // Assuming the user is authenticated
+        'category_id' => $validated['category_id'],
+        'payment_option' => $validated['payment_option'],
+        'amount' => $validated['amount'],
+        'reference_no' => $validated['reference_no'],
+    ]);
 
-            // Read image from file system
-            $image = $manager->read($file->getPathname());
+    // Send email receipt
+    Mail::to(Auth::user()->email)->send(new DonationReceipt($donation));
 
-            // Resize and compress the image
-            $image->resize(800, 800, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
+    // Return a response
+    return response()->json([
+        'message' => 'Donation recorded successfully',
+        'donation' => $donation,
+    ], 201);
+}
 
-            // Define the path to save the image
-            $attachmentPath = 'uploads/proof_of_donation/' . $filename;
-            $image->save(public_path($attachmentPath), 75); // Save with 75% quality to compress
-        }
+public function getUserDonations(Request $request)
+{
+    $userId = Auth::id();
 
-        // Create donation record
-        $donation = new Donation();
-        $donation->user_id = Auth::id();
-        $donation->category_id = $request->input('category_id');
-        $donation->payment_option = $request->input('payment_option');
-        $donation->amount = $request->input('amount');
-        $donation->attachment_file = $attachmentPath;
-        $donation->reference_no = $request->input('reference_no');
-        $donation->approve_status = 'pending';
-        $donation->save();
+    $donations = Donation::with('category')
+        ->where('user_id', $userId)
+        ->orderBy('created_at', 'desc')
+        ->get(['payment_option', 'amount', 'created_at', 'reference_no', 'category_id']);
 
-        return response()->json([
-            'message' => 'Thank you so much for your generous donation! Your kindness and support mean the world to us and will make a significant impact in the lives of those we help.',
-            'donation' => $donation
-        ], 201);
-    }
+    $donationsDetails = $donations->map(function ($donation) {
+        return [
+            'category_name' => $donation->category->category_name, // Use $donation instead of $donations
+            'payment_option' => $donation->payment_option,
+            'amount' => $donation->amount,
+            'reference_no' => $donation->reference_no,
+            'created_at' => $donation->created_at->toDateTimeString(),
+        ];
+    });
 
- public function getUserDonations(Request $request)
-    {
-        $userId = Auth::id();
+    return response()->json($donationsDetails);
+}
 
-        $donations = Donation::with('category')
-            ->where('user_id', $userId)
-            ->orderBy('created_at', 'desc')
-            ->get(['payment_option', 'amount', 'created_at', 'approve_status', 'category_id']);
-
-
-        $donationsDetails = $donations->map(function ($donation) {
-            return [
-                'category_name' => $donation->category->category_name,
-                'payment_option' => $donation->payment_option,
-                'amount' => $donation->amount,
-                'created_at' => $donation->created_at->toDateTimeString(),
-                'approve_status' => $donation->approve_status,
-            ];
-        });
-
-        return response()->json($donationsDetails);
-    }
 }

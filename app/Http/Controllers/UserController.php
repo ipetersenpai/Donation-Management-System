@@ -157,4 +157,10 @@ class UserController extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to update password. Please try again.'], 500);
         }
     }
+
+    public function countUsers()
+    {
+        $totalUsers = User::count();
+        return response()->json(['total_users' => $totalUsers]);
+    }
 }

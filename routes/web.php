@@ -3,9 +3,24 @@
 use App\Http\Controllers\SMTP\EmailVerificationController;
 use App\Http\Controllers\SMTP\ForgotPasswordController;
 use App\Http\Controllers\SMTP\ResetPasswordController;
+use App\Http\Controllers\DonationCategoryController;
+use App\Http\Controllers\DonationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
+
+
+
+Route::get('/payment-success', function (Request $request) {
+
+    if ($request->has('payment_intent_id')) {
+        return view('success_payment');
+    }
+
+    abort(404);
+
+})->name('success_payment');
 
 Route::prefix('auth')
     ->middleware(['web'])
@@ -65,7 +80,7 @@ Route::middleware(['auth', 'verified'])
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
-use App\Http\Controllers\DonationCategoryController;
+
 
 // Donation Category Routes
 Route::middleware(['auth', 'verified'])
@@ -78,10 +93,22 @@ Route::middleware(['auth', 'verified'])
         Route::delete('/{category}', [DonationCategoryController::class, 'destroy'])->name('categories.destroy');
     });
 
+// Donation History Routes
+Route::middleware(['auth', 'verified'])
+    ->prefix('history')
+    ->group(function () {
+        Route::get('/', [DonationController::class, 'getDonationHistory'])->name('donation.history');
+        Route::get('/search', [DonationController::class, 'searchDonations'])->name('donations.search');
+        Route::get('/total-users', [DonationController::class, 'countUsersWhoDonated'])->name('donations.total_users');
+        Route::get('/total-amount', [DonationController::class, 'totalAmountDonated'])->name('donations.total_amount');
+    });
+
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
     Route::post('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
     Route::post('/change-password', [UserController::class, 'changePassword'])->name('change.password');
+    Route::get('/total-users', [UserController::class, 'countUsers'])->name('users.total_users');
 });
 
 Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
