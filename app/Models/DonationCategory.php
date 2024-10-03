@@ -9,7 +9,7 @@ class DonationCategory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['category_name', 'description', 'created_at', 'updated_at'];
+    protected $fillable = ['category_name', 'description', 'about', 'link', 'created_at', 'updated_at'];
 
     public function donations()
     {

@@ -139,24 +139,24 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'Failed to update profile');
         }
     }
-
     public function changePassword(Request $request)
-    {
-        // Validate request inputs
-        $request->validate([
-            'new_password' => 'required|string|min:8|confirmed',
-        ]);
+{
+    // Validate request inputs
+    $request->validate([
+        'new_password' => 'required|string|min:8|confirmed',
+    ]);
 
-        // Update the user's password
-        $user = Auth::user();
-        $user->password = Hash::make($request->new_password);
+    // Update the user's password
+    $user = Auth::user();
+    $user->password = Hash::make($request->new_password);
 
-        if ($user->save()) {
-            return response()->json(['success' => true]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Failed to update password. Please try again.'], 500);
-        }
+    if ($user->save()) {
+        return redirect()->back()->with('success', 'Password updated successfully!');
+    } else {
+        return redirect()->back()->with('error', 'Failed to update password. Please try again.');
     }
+}
+
 
     public function countUsers()
     {

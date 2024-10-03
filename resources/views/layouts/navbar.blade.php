@@ -68,12 +68,17 @@
                 <div class="modal-body">
                     <div class="form-group mb-3">
                         <label for="new_password" class="form-label">New Password</label>
-                        <input type="password" class="form-control" id="new_password" name="new_password" required>
+                        <input type="password" class="form-control @error('new_password') is-invalid @enderror" id="new_password" name="new_password" required>
+                        @error('new_password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="form-group mb-3">
                         <label for="confirm_password" class="form-label">Confirm New Password</label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password"
-                            required>
+                        <input type="password" class="form-control @error('new_password') is-invalid @enderror" id="confirm_password" name="new_password_confirmation" required>
+                        @error('new_password_confirmation')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -84,6 +89,8 @@
         </div>
     </div>
 </div>
+
+
 
 
 <script>
@@ -113,6 +120,38 @@
             changePasswordModal.show();
         });
     });
+
+
+    $(document).ready(function () {
+    $('#change-password-form').on('submit', function (e) {
+        e.preventDefault(); // Prevent the form from submitting normally
+
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            success: function (response) {
+                if (response.success) {
+                    alert('Password updated successfully!');
+                    $('#changePasswordModal').modal('hide'); // Hide modal
+                }
+            },
+            error: function (xhr) {
+                // Handle validation errors
+                if (xhr.status === 422) {
+                    const errors = xhr.responseJSON.errors;
+                    for (const field in errors) {
+                        const errorMessage = errors[field][0]; // Get the first error message
+                        alert(errorMessage); // Display error message (you may want to use a better method)
+                    }
+                } else {
+                    alert('Failed to update password. Please try again.');
+                }
+            }
+        });
+    });
+});
+
 </script>
 
 <style>

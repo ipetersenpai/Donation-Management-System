@@ -25,9 +25,11 @@ class CustomVerificationMail extends Mailable
     {
         $verificationUrl = $this->verificationUrl($this->user);
 
-        return $this->view('smtp_templates.verify')->with([
-            'verificationUrl' => $verificationUrl,
-        ]);
+        return $this->subject('Verify Your Email Address')
+                    ->view('smtp_templates.verify')
+                    ->with([
+                        'verificationUrl' => $verificationUrl,
+                    ]);
     }
 
     protected function verificationUrl($notifiable)

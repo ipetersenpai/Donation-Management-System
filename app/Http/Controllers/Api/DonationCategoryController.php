@@ -19,7 +19,7 @@ class DonationCategoryController extends Controller
         }
 
         // Fetch all donation categories
-        $categories = DonationCategory::select('id', 'category_name', 'description')->get();
+        $categories = DonationCategory::select('id', 'category_name', 'description', 'about', 'link')->get();
 
         return response()->json($categories);
     }

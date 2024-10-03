@@ -1,4 +1,3 @@
-<!-- resources/views/emails/verify.blade.php -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,8 +37,8 @@
         .verify-button {
             display: inline-block;
             padding: 10px 20px;
-            background-color: #28a745;
-            color: #ffffff;
+            background-color: #007bff; /* Primary blue color */
+            color: #ffffff; /* White text color */
             text-decoration: none;
             border-radius: 4px;
         }
@@ -51,7 +50,7 @@
             Verify Your Email Address
         </div>
         <div class="email-body">
-            <p>Dear {{ $user->name }},</p>
+            <p>Dear {{ $user->first_name }},</p>
             <p>Please click the button below to verify your email address:</p>
             <a href="{{ $verificationUrl }}" class="verify-button">Verify Email</a>
             <p>If you did not create an account, no further action is required.</p>

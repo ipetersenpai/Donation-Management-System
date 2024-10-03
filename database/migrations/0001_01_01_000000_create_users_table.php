@@ -47,7 +47,9 @@ return new class extends Migration {
         Schema::create('donation_categories', function (Blueprint $table) {
             $table->id();
             $table->string('category_name', 255);
-            $table->string('description', 255);
+            $table->string('description', 255)->nullable();
+            $table->string('about', 500)->nullable();
+            $table->string('link', 255)->nullable();
             $table->timestamps();
         });
 
@@ -56,7 +58,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('category_id');
             $table->string('payment_option', 50);
-            $table->decimal('amount', 10, 2);
+            $table->decimal('amount', 40, 2);
             $table->string('reference_no');
             $table->timestamps();
             // Indexes
@@ -65,33 +67,18 @@ return new class extends Migration {
         });
 
 
-        Schema::create('reports', function (Blueprint $table) {
-            $table->id();
-            $table->string('report_type', 50);
-            $table->date('period_start');
-            $table->date('period_end');
-            $table->timestamps();
-        });
-
         Schema::create('fund_allocation', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('category_id');
-            $table->decimal('allocated_amount', 10, 2);
+            $table->string('category_name', 255);
+            $table->string('project_name', 255);
+            $table->decimal('allocated_amount', 40, 2);
             $table->timestamps();
 
             // Indexes
             $table->index('category_id');
         });
 
-        Schema::create('financial_reports', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('report_id');
-            $table->text('description');
-            $table->timestamps();
-
-            // Indexes
-            $table->index('report_id');
-        });
     }
 
     /**
@@ -104,10 +91,7 @@ return new class extends Migration {
         Schema::dropIfExists('sessions');
         Schema::dropIfExists('donation_categories');
         Schema::dropIfExists('donations');
-        Schema::dropIfExists('payment_gateways');
-        Schema::dropIfExists('receipts');
-        Schema::dropIfExists('reports');
         Schema::dropIfExists('fund_allocation');
-        Schema::dropIfExists('financial_reports');
+
     }
 };

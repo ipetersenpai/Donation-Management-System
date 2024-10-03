@@ -9,8 +9,13 @@ class FundAllocation extends Model
 {
     use HasFactory;
 
+    // Specify the table name
+    protected $table = 'fund_allocation';
+
     protected $fillable = [
         'category_id',
+        'category_name',
+        'project_name',
         'allocated_amount',
     ];
 

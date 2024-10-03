@@ -75,7 +75,7 @@
                             </div>
                             <div class="card-body">
                                 <h5 class="card-title" style="font-weight: bold">Amount Allocated</h5>
-                                <h4 class="card-text" style="font-weight: 600">81999</h4>
+                                <h4 class="card-text" id="totalFundAllocation" style="font-weight: 600">Loading...</h4>
                             </div>
                         </div>
                     </div>
@@ -88,7 +88,7 @@
     <script>
         $(document).ready(function() {
 
-                $.get('{{ route('users.total_users') }}', function(data) {
+            $.get('{{ route('users.total_users') }}', function(data) {
                 $('#countUser').text(data.total_users);
             });
 
@@ -100,6 +100,11 @@
             // Fetch total amount donated
             $.get('{{ route('donations.total_amount') }}', function(data) {
                 $('#totalAmount').text(data.total_amount.toLocaleString());
+            });
+
+            // Fetch total fund allocated
+            $.get('{{ route('fund_allocations.total') }}', function(data) {
+                $('#totalFundAllocation').text(data.total_allocated_amount.toLocaleString());
             });
 
         });

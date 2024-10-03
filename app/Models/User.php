@@ -13,14 +13,18 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory,HasApiTokens, Notifiable;
+    use HasFactory, HasApiTokens, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = ['first_name', 'middle_name', 'last_name', 'suffix', 'birth_date', 'contact_no', 'home_address', 'gender', 'email', 'role', 'verified_status', 'email_verified_at', 'password'];
+    protected $fillable = [
+        'first_name', 'middle_name', 'last_name', 'suffix', 'birth_date',
+        'contact_no', 'home_address', 'gender', 'email', 'role', 'verified_status',
+        'email_verified_at', 'password'
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -66,5 +70,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function donations()
     {
         return $this->hasMany(Donation::class);
+    }
+
+    /**
+     * Check if the user has a specific role.
+     *
+     * @param string $role
+     * @return bool
+     */
+    public function hasRole($role)
+    {
+        return $this->role === $role;
     }
 }

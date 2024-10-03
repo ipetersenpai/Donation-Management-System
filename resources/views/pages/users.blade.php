@@ -176,11 +176,19 @@
                                                         <div class="col-md-6">
                                                             <div class="form-group">
                                                                 <label for="gender-{{ $user->id }}">Gender</label>
-                                                                <input type="text" class="form-control"
+                                                                <select class="form-control"
                                                                     id="gender-{{ $user->id }}" name="gender"
-                                                                    value="{{ $user->gender }}" required>
+                                                                    required>
+                                                                    <option value="Male"
+                                                                        {{ $user->gender == 'Male' ? 'selected' : '' }}>
+                                                                        Male</option>
+                                                                    <option value="Female"
+                                                                        {{ $user->gender == 'Female' ? 'selected' : '' }}>
+                                                                        Female</option>
+                                                                </select>
                                                             </div>
                                                         </div>
+
                                                         <div class="col-md-6">
                                                             <div class="form-group">
                                                                 <label for="email-{{ $user->id }}">Email</label>
@@ -194,11 +202,19 @@
                                                         <div class="col-md-6">
                                                             <div class="form-group">
                                                                 <label for="role-{{ $user->id }}">Role</label>
-                                                                <input type="text" class="form-control"
+                                                                <select class="form-control"
                                                                     id="role-{{ $user->id }}" name="role"
-                                                                    value="{{ $user->role }}" required>
+                                                                    required>
+                                                                    <option value="Member"
+                                                                        {{ $user->role == 'Member' ? 'selected' : '' }}>
+                                                                        Member</option>
+                                                                    <option value="Admin"
+                                                                        {{ $user->role == 'Admin' ? 'selected' : '' }}>
+                                                                        Admin</option>
+                                                                </select>
                                                             </div>
                                                         </div>
+
                                                         <div class="col-md-6">
                                                             <div class="form-group">
                                                                 <label for="verified_status-{{ $user->id }}">Verified
@@ -307,9 +323,14 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="gender">Gender</label>
-                                                <input type="text" class="form-control" id="gender" name="gender"
-                                                    required>
+                                                <label for="gender-{{ $user->id }}">Gender</label>
+                                                <select class="form-control" id="gender-{{ $user->id }}"
+                                                    name="gender" required>
+                                                    <option value="Male"
+                                                        {{ $user->gender == 'Male' ? 'selected' : '' }}>Male</option>
+                                                    <option value="Female"
+                                                        {{ $user->gender == 'Female' ? 'selected' : '' }}>Female</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -323,11 +344,17 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="role">Role</label>
-                                                <input type="text" class="form-control" id="role" name="role"
-                                                    required>
+                                                <label for="role-{{ $user->id }}">Role</label>
+                                                <select class="form-control" id="role-{{ $user->id }}"
+                                                    name="role" required>
+                                                    <option value="Member"
+                                                        {{ $user->role == 'Member' ? 'selected' : '' }}>Member</option>
+                                                    <option value="Admin" {{ $user->role == 'Admin' ? 'selected' : '' }}>
+                                                        Admin</option>
+                                                </select>
                                             </div>
                                         </div>
+
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="verified_status">Verified Status</label>

@@ -1,7 +1,3 @@
-@php
-    use Carbon\Carbon;
-@endphp
-
 @extends('layouts.app')
 
 @section('content')
@@ -31,12 +27,12 @@
                 @endif
 
                 <div class="header" style="margin-top: {{ session('success') || session('error') ? '0' : '20px' }};">
-                    <h3>Donation Categories</h3>
+                    <h3>Fund Allocations</h3>
                 </div>
 
                 <div class="d-flex w-full flex-md-row flex-column justify-content-between">
                     <!-- Search Input -->
-                    <form action="{{ route('categories.search') }}" method="GET"
+                    <form action="{{ route('fund_allocations.search') }}" method="GET"
                         class="d-flex flex-sm-col flex-md-row gap-2 justify-content-start my-3">
                         <div class="form-group">
                             <input type="text" style="width: 250px" name="search" class="form-control"
@@ -44,37 +40,42 @@
                         </div>
                         <button type="submit" class="btn btn-primary">Search</button>
                     </form>
-                    <button type="button" class="btn btn-primary my-md-3 my-2" data-toggle="modal"
-                        data-target="#createCategoryModal">
-                        Create Category
-                    </button>
+                    <div>
+                        <a href="{{ route('fund_allocations.export') }}" class="btn btn-secondary my-md-3 my-2">Export to CSV</a>
+                        <button type="button" class="btn btn-primary my-md-3 my-2" data-toggle="modal"
+                            data-target="#createAllocationModal">
+                            Allocate Funds
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Responsive DataTable -->
                 <div class="table-responsive" style="overflow-y: auto; height: 65vh; border: 1px solid #f2f2f2;">
-                    <table id="categoryTable" class="table table-striped table-bordered table-hover" style="width:100%">
+                    <table id="fundAllocationTable" class="table table-striped table-bordered table-hover" style="width:100%">
                         <thead>
                             <tr>
-                                <th style="min-width: 300px">Category Name</th>
-                                <th style="min-width: 350px">Description</th>
-                                <th style="min-width: 150px">Created At</th>
-                                <th style="min-width: 150px">Updated At</th>
-                                <th style="min-width: 150px">Actions</th>
+                                <th>Category Name</th>
+                                <th>Project Name</th>
+                                <th>Allocated Amount</th>
+                                <th>Created At</th>
+                                <th>Updated At</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($categories as $category)
+                            @foreach ($allocations as $allocation)
                                 <tr>
-                                    <td>{{ $category->category_name }}</td>
-                                    <td>{{ $category->description }}</td>
-                                    <td>{{ Carbon::parse($category->created_at)->format('m-d-Y') }}</td>
-                                    <td>{{ Carbon::parse($category->updated_at)->format('m-d-Y') }}</td>
+                                    <td>{{ $allocation->category->category_name }}</td>
+                                    <td>{{ $allocation->project_name }}</td>
+                                    <td>{{ number_format($allocation->allocated_amount, 2) }}</td>
+                                    <td>{{ $allocation->created_at->format('m-d-Y') }}</td>
+                                    <td>{{ $allocation->updated_at->format('m-d-Y') }}</td>
                                     <td>
                                         <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                                            data-target="#updateCategoryModal-{{ $category->id }}">Update</button>
-                                        <form action="{{ route('categories.destroy', $category->id) }}" method="POST"
+                                            data-target="#updateAllocationModal-{{ $allocation->id }}">Update</button>
+                                        <form action="{{ route('fund_allocations.destroy', $allocation->id) }}" method="POST"
                                             style="display:inline-block;"
-                                            onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                            onsubmit="return confirm('Are you sure you want to delete this allocation?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
@@ -82,20 +83,20 @@
                                     </td>
                                 </tr>
 
-                                <!-- Update Category Modal -->
-                                <div class="modal fade" id="updateCategoryModal-{{ $category->id }}" tabindex="-1"
-                                    role="dialog" aria-labelledby="updateCategoryModalLabel-{{ $category->id }}"
+                                <!-- Update Allocation Modal -->
+                                <div class="modal fade" id="updateAllocationModal-{{ $allocation->id }}" tabindex="-1"
+                                    role="dialog" aria-labelledby="updateAllocationModalLabel-{{ $allocation->id }}"
                                     aria-hidden="true">
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
-                                            <form id="updateCategoryForm-{{ $category->id }}" method="POST"
-                                                action="{{ route('categories.update', $category->id) }}">
+                                            <form id="updateAllocationForm-{{ $allocation->id }}" method="POST"
+                                                action="{{ route('fund_allocations.update', $allocation->id) }}">
                                                 @csrf
                                                 @method('PUT')
                                                 <div class="modal-header">
                                                     <h5 class="modal-title"
-                                                        id="updateCategoryModalLabel-{{ $category->id }}">
-                                                        Update Category: {{ $category->category_name }}</h5>
+                                                        id="updateAllocationModalLabel-{{ $allocation->id }}">
+                                                        Update Allocation</h5>
                                                     <button type="button" class="close" data-dismiss="modal"
                                                         aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
@@ -103,25 +104,27 @@
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="form-group">
-                                                        <label for="category_name-{{ $category->id }}">Category
-                                                            Name</label>
+                                                        <label for="category_id-{{ $allocation->id }}">Category</label>
+                                                        <select class="form-control" id="category_id-{{ $allocation->id }}"
+                                                            name="category_id" required>
+                                                            @foreach ($categories as $category)
+                                                                <option value="{{ $category->id }}" {{ $category->id == $allocation->category_id ? 'selected' : '' }}>
+                                                                    {{ $category->category_name }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="project_name-{{ $allocation->id }}">Project Name</label>
                                                         <input type="text" class="form-control"
-                                                            id="category_name-{{ $category->id }}" name="category_name"
-                                                            value="{{ $category->category_name }}" required>
+                                                            id="project_name-{{ $allocation->id }}" name="project_name"
+                                                            value="{{ $allocation->project_name }}" required>
                                                     </div>
                                                     <div class="form-group">
-                                                        <label for="description-{{ $category->id }}">Description</label>
-                                                        <textarea class="form-control" id="description-{{ $category->id }}" name="description" rows="2">{{ $category->description }}</textarea>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label for="about-{{ $category->id }}">About</label>
-                                                        <textarea class="form-control" id="about-{{ $category->id }}" name="about" rows="7">{{ $category->about }}</textarea>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label for="link-{{ $category->id }}">Link</label>
-                                                        <input type="text" class="form-control"
-                                                            id="link-{{ $category->id }}" name="link"
-                                                            value="{{ $category->link }}">
+                                                        <label for="allocated_amount-{{ $allocation->id }}">Allocated Amount</label>
+                                                        <input type="number" step="0.01" class="form-control"
+                                                            id="allocated_amount-{{ $allocation->id }}" name="allocated_amount"
+                                                            value="{{ $allocation->allocated_amount }}" required>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
@@ -138,36 +141,37 @@
                     </table>
                 </div>
 
-                <!-- Create Category Modal -->
-                <div class="modal fade" id="createCategoryModal" tabindex="-1" role="dialog"
-                    aria-labelledby="createCategoryModalLabel" aria-hidden="true">
+                <!-- Create Allocation Modal -->
+                <div class="modal fade" id="createAllocationModal" tabindex="-1" role="dialog"
+                    aria-labelledby="createAllocationModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
-                            <form id="createCategoryForm" method="POST" action="{{ route('categories.store') }}">
+                            <form id="createAllocationForm" method="POST" action="{{ route('fund_allocations.store') }}">
                                 @csrf
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="createCategoryModalLabel">Create Category</h5>
+                                    <h5 class="modal-title" id="createAllocationModalLabel">Allocate Funds</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="form-group">
-                                        <label for="category_name">Category Name</label>
-                                        <input type="text" class="form-control" id="category_name"
-                                            name="category_name" required>
+                                        <label for="category_id">Category</label>
+                                        <select class="form-control" id="category_id" name="category_id" required>
+                                            @foreach ($categories as $category)
+                                                <option value="{{ $category->id }}">
+                                                    {{ $category->category_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="description">Description</label>
-                                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                                        <label for="project_name">Project Name</label>
+                                        <input type="text" class="form-control" id="project_name" name="project_name" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="about">About</label>
-                                        <textarea class="form-control" id="about" name="about" rows="7"></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="link">Link</label>
-                                        <input type="text" class="form-control" id="link" name="link">
+                                        <label for="allocated_amount">Allocated Amount</label>
+                                        <input type="number" step="0.01" class="form-control" id="allocated_amount" name="allocated_amount" required>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -179,10 +183,9 @@
                     </div>
                 </div>
 
-
                 <!-- Pagination -->
                 <div class="d-flex justify-content-end mt-3">
-                    {{ $categories->links('pagination::bootstrap-4') }}
+                    {{ $allocations->links('pagination::bootstrap-4') }}
                 </div>
             </div>
         </div>
@@ -197,19 +200,18 @@
             background: linear-gradient(to bottom,
                     rgba(127, 6, 14, 0.944),
                     rgba(160, 8, 36, 0.911));
-
         }
     </style>
 
     <script>
         $(document).ready(function() {
-            var table = $('#categoryTable').DataTable({
+            $('#fundAllocationTable').DataTable({
                 "paging": true,
                 "info": true
             });
 
             $('#searchInput').on('keyup', function() {
-                table.search(this.value).draw();
+                $('#fundAllocationTable').DataTable().search(this.value).draw();
             });
         });
     </script>

@@ -17,30 +17,40 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $credentials = $request->only('email', 'password');
+{
+    $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
 
-            if (!$user->verified_status) {
-                Mail::to($user->email)->send(new CustomVerificationMail($user));
+        // Check if the user's email is verified
+        if (!$user->verified_status) {
+            Mail::to($user->email)->send(new CustomVerificationMail($user));
 
-                return back()->withErrors([
-                    'email' => 'Email is not verified. We have sent you a link on your email to verify your account.',
-                ]);
-            }
-
-            $request->session()->regenerate();
-            $user->updateSessionTimeout();
-
-            return redirect()->intended('dashboard');
+            return back()->withErrors([
+                'email' => 'Email is not verified. We have sent you a link on your email to verify your account.',
+            ]);
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+        if (!$user->hasRole('Admin')) {
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => "You don't have permission to continue. To donate, please use the app and log in there.",
+            ]);
+        }
+
+        $request->session()->regenerate();
+        $user->updateSessionTimeout();
+
+        return redirect()->intended('dashboard');
     }
+
+    return back()->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+    ]);
+}
+
 
     public function showRegistrationForm()
     {

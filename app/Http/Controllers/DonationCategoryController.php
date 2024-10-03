@@ -29,28 +29,33 @@ class DonationCategoryController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'category_name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
+{
+    $validatedData = $request->validate([
+        'category_name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'about'        => 'nullable|string',
+        'link'         => 'nullable|string|max:255',
+    ]);
 
-        DonationCategory::create($validatedData);
+    DonationCategory::create($validatedData);
 
-        return redirect()->back()->with('success', 'Category created successfully');
-    }
+    return redirect()->back()->with('success', 'Category created successfully');
+}
 
-    public function update(Request $request, DonationCategory $category)
-    {
-        $validatedData = $request->validate([
-            'category_name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
+public function update(Request $request, DonationCategory $category)
+{
+    $validatedData = $request->validate([
+        'category_name' => 'required|string|max:255',
+        'description'   => 'nullable|string',
+        'about'         => 'nullable|string',
+        'link'          => 'nullable|string|max:255',
+    ]);
 
-        $category->update($validatedData);
+    $category->update($validatedData);
 
-        return redirect()->back()->with('success', 'Category updated successfully');
-    }
+    return redirect()->back()->with('success', 'Category updated successfully');
+}
+
 
     public function destroy(DonationCategory $category)
     {

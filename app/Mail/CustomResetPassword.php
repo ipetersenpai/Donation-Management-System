@@ -32,15 +32,15 @@ class CustomResetPassword extends Mailable
      *
      * @return $this
      */
-     public function build()
-{
-    $url = url(route('password.reset', ['token' => $this->token, 'email' => $this->email], false));
+    public function build()
+    {
+        $url = url(route('password.reset', ['token' => $this->token, 'email' => $this->email], false));
 
-    return $this->view('smtp_templates.forgot_password')
-                ->with([
-                    'url' => $url,
-                    'email' => urldecode($this->email)
-                ]);
-}
-
+        return $this->view('smtp_templates.forgot_password')
+                    ->subject('Reset Your Password')
+                    ->with([
+                        'url' => $url,
+                        'email' => urldecode($this->email)
+                    ]);
+    }
 }

@@ -17,12 +17,12 @@ class Users extends Seeder
     public function run()
     {
         // Generate 100 users
-        for ($i = 6; $i <= 100; $i++) {
+        for ($i = 6; $i <= 123; $i++) {
             $users[] = [
                 'first_name' => 'User' . $i,
                 'middle_name' => null,
                 'last_name' => 'Doe',
-                'role' => 'User',
+                'role' => 'Member',
                 'suffix' => null,
                 'birth_date' => now()->subYears(rand(18, 60))->format('Y-m-d'), // Random birth date between 18 to 60 years ago
                 'contact_no' => '1234567890', // Dummy contact number
