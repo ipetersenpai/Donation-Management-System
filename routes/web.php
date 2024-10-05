@@ -100,8 +100,11 @@ Route::middleware(['auth', 'verified'])
     ->group(function () {
         Route::get('/', [DonationController::class, 'getDonationHistory'])->name('donation.history');
         Route::get('/search', [DonationController::class, 'searchDonations'])->name('donations.search');
+        Route::post('/donation/store', [DonationController::class, 'storeDonation'])->name('donation.store');
         Route::get('/total-users', [DonationController::class, 'countUsersWhoDonated'])->name('donations.total_users');
         Route::get('/total-amount', [DonationController::class, 'totalAmountDonated'])->name('donations.total_amount');
+        Route::get('/donations/export', [DonationController::class, 'exportDonations'])->name('donations.export');
+
     });
 
 // Fund Allocation Routes

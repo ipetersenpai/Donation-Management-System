@@ -55,7 +55,8 @@ return new class extends Migration {
 
         Schema::create('donations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->string('non_member_full_name', 175)->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('category_id');
             $table->string('payment_option', 50);
             $table->decimal('amount', 40, 2);
