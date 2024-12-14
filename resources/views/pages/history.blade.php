@@ -15,18 +15,14 @@
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('success') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
 
                 @if (session('error'))
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         {{ session('error') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
 
@@ -46,16 +42,17 @@
                     </form>
 
                     <div>
-                        <a href="{{ route('donations.export') }}" class="btn btn-secondary my-md-3 my-2">Export to CSV</a>
+                        <button type="button" class="btn btn-secondary my-md-3 my-2" data-toggle="modal" data-target="#dateRangeModal">
+                            Export to CSV
+                        </button>
 
-                        <button type="button" class="btn btn-primary my-md-3 my-2" data-toggle="modal"
-                            data-target="#AddDonationModal">
+                        <button type="button" class="btn btn-primary my-md-3 my-2" data-toggle="modal" data-target="#AddDonationModal">
                             Manually Add
                         </button>
                     </div>
+
                 </div>
 
-                <!-- Responsive DataTable -->
                 <!-- Responsive DataTable -->
                 <div class="table-responsive" style="overflow-y: auto; height: 65vh; border: 1px solid #f2f2f2;">
                     <table id="donationTable" class="table table-striped table-bordered table-hover" style="width:100%">
@@ -104,91 +101,131 @@
     </div>
 
 
-    <!-- Add Donation Modal -->
-    <div class="modal fade" id="AddDonationModal" tabindex="-1" role="dialog" aria-labelledby="AddDonationModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form action="{{ route('donation.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="AddDonationModalLabel">Manually Add Donation</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+<!-- Add Donation Modal -->
+<div class="modal fade" id="AddDonationModal" tabindex="-1" role="dialog" aria-labelledby="AddDonationModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="{{ route('donation.store') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="AddDonationModalLabel">Manually Add Donation</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Is Member? -->
+                    <div class="form-group">
+                        <label for="is_member">Is Member?</label>
+                        <select id="is_member" name="is_member" class="form-control" required onchange="toggleMemberInput(this)">
+                            <option value="1">Yes</option>
+                            <option value="0">No</option>
+                        </select>
                     </div>
+
+                    <!-- Member Selection -->
+                    <div class="form-group member-select" id="memberSelect">
+                        <label for="user_id">Select Member</label>
+                        <select id="user_id" name="user_id" class="form-control" required>
+                            <option value="">Select a member</option>
+                            @foreach ($members as $member)
+                                <option value="{{ $member->id }}">{{ $member->first_name }}
+                                    {{ $member->last_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Non-member Name Input -->
+                    <div class="form-group member-input" id="manualNameInput" style="display:none;">
+                        <label for="name">Enter Name</label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="Full Name" required>
+                    </div>
+
+                    <!-- Donation Category -->
+                    <div class="form-group">
+                        <label for="category_id">Donation Category</label>
+                        <select id="category_id" name="category_id" class="form-control" required>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" id="amount" name="amount" class="form-control" placeholder="Enter amount" required>
+                    </div>
+
+                    <!-- Reference No -->
+                    <div class="form-group">
+                        <label for="reference_no">Reference No</label>
+                        <input type="text" id="reference_no" name="reference_no" class="form-control" placeholder="Enter reference number" required>
+                    </div>
+
+                    <!-- Payment Option -->
+                    <div class="form-group">
+                        <label for="payment_option">Payment Option</label>
+                        <select id="payment_option" name="payment_option" class="form-control" required>
+                            <option value="Cash">Cash</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Credit Card">Credit Card</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Donation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+    <div class="modal fade" id="dateRangeModal" tabindex="-1" aria-labelledby="dateRangeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dateRangeModalLabel">Select Donator and Date Range</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('donations.export') }}" method="GET">
                     <div class="modal-body">
-                        <!-- Is Member? -->
                         <div class="form-group">
-                            <label for="is_member">Is Member?</label>
-                            <select id="is_member" name="is_member" class="form-control" onchange="toggleMemberInput(this)">
-                                <option value="1">Yes</option>
-                                <option value="0">No</option>
-                            </select>
-                        </div>
-
-                        <!-- Member Selection -->
-                        <div class="form-group member-select" id="memberSelect">
-                            <label for="user_id">Select Member</label>
-                            <select id="user_id" name="user_id" class="form-control">
-                                <option value="">Select a member</option>
+                            <label for="donator_id">Donator:</label>
+                            <select id="donator_id" name="donator_id" class="form-control">
+                                <option value="">All</option>
                                 @foreach ($members as $member)
-                                    <option value="{{ $member->id }}">{{ $member->first_name }}
-                                        {{ $member->last_name }}</option>
+                                    <option value="{{ $member->id }}">
+                                        Member: {{ $member->first_name }} {{ $member->last_name }}
+                                    </option>
+                                @endforeach
+                                @foreach ($nonMembers as $nonMember)
+                                    <option value="non_member_{{ $nonMember->id }}">
+                                        Non-Member: {{ $nonMember->non_member_full_name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-
-                        <!-- Non-member Name Input -->
-                        <div class="form-group member-input" id="manualNameInput" style="display:none;">
-                            <label for="name">Enter Name</label>
-                            <input type="text" id="name" name="name" class="form-control"
-                                placeholder="Full Name">
-                        </div>
-
-                        <!-- Donation Category -->
                         <div class="form-group">
-                            <label for="category_id">Donation Category</label>
-                            <select id="category_id" name="category_id" class="form-control">
-                                @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                                @endforeach
-                            </select>
+                            <label for="start_date">Start Date:</label>
+                            <input type="date" id="start_date" name="start_date" class="form-control">
                         </div>
-
-                        <!-- Amount -->
                         <div class="form-group">
-                            <label for="amount">Amount</label>
-                            <input type="number" id="amount" name="amount" class="form-control"
-                                placeholder="Enter amount">
+                            <label for="end_date">End Date:</label>
+                            <input type="date" id="end_date" name="end_date" class="form-control">
                         </div>
-
-                        <!-- Reference No -->
-                        <div class="form-group">
-                            <label for="reference_no">Reference No</label>
-                            <input type="text" id="reference_no" name="reference_no" class="form-control"
-                                placeholder="Enter reference number">
-                        </div>
-
-                        <!-- Payment Option -->
-                        <div class="form-group">
-                            <label for="payment_option">Payment Option</label>
-                            <select id="payment_option" name="payment_option" class="form-control">
-                                <option value="Cash">Cash</option>
-                                <option value="Bank Transfer">Bank Transfer</option>
-                                <option value="Credit Card">Credit Card</option>
-                            </select>
-                        </div>
-
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Donation</button>
+                        <button type="submit" class="btn btn-primary">Export</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
 
 
 

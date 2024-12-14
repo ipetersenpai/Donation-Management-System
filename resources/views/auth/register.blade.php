@@ -240,18 +240,19 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             var currentStep = 1;
 
-            $(".nextBtn").click(function() {
+            $(".nextBtn").click(function () {
+                // Perform validation based on the current step
                 if (currentStep === 1) {
                     if ($('#first_name').val() === '' || $('#last_name').val() === '') {
-                        alert('Please fill in all required fields');
+                        alert('First Name and Last Name are required.');
                         return false;
                     }
                 } else if (currentStep === 2) {
-                    if ($('#birth_date').val() === '' || $('#contact_no').val() === '') {
-                        alert('Please fill in all required fields');
+                    if ($('#birth_date').val() === '' || $('#contact_no').val() === '' || $('#gender').val() === '') {
+                        alert('Please fill in all required fields in Step 2.');
                         return false;
                     }
                 }
@@ -260,7 +261,7 @@
                 showStep(currentStep);
             });
 
-            $(".prevBtn").click(function() {
+            $(".prevBtn").click(function () {
                 currentStep--;
                 showStep(currentStep);
             });
@@ -277,6 +278,39 @@
                 var progress = ((step - 1) / 2) * 100; // Calculate progress percentage
                 $(".progress-bar").css("width", progress + "%");
             }
+
+            $("#registrationForm").submit(function (e) {
+                // Validate password
+                var password = $("#password").val();
+                var confirmPassword = $("#password_confirmation").val();
+
+                if (!validatePassword(password)) {
+                    alert(
+                        'Password must be at least 8 characters long, include at least one uppercase letter, and one number.'
+                    );
+                    e.preventDefault();
+                    return false;
+                }
+
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match.');
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Ensure all other fields are valid (additional checks can be added here)
+                if ($('#email').val() === '') {
+                    alert('Email is required.');
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            function validatePassword(password) {
+                var passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+                return passwordRegex.test(password);
+            }
         });
     </script>
+
 @endsection

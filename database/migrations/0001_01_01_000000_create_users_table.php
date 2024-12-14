@@ -80,6 +80,27 @@ return new class extends Migration {
             $table->index('category_id');
         });
 
+        Schema::create('user_histories', function (Blueprint $table) {
+    $table->id();
+    $table->unsignedBigInteger('user_id'); // Reference to the original user
+    $table->string('first_name', 50);
+    $table->string('middle_name', 50)->nullable();
+    $table->string('last_name', 50);
+    $table->string('role', 20)->default('Member');
+    $table->string('suffix')->nullable();
+    $table->dateTime('birth_date');
+    $table->string('contact_no', 11);
+    $table->string('home_address', 255);
+    $table->string('gender', 6);
+    $table->string('email');
+    $table->boolean('verified_status')->default(false);
+    $table->enum('action', ['updated', 'deleted']); // Action type
+    $table->timestamp('action_at'); // Time of the action
+    $table->timestamps();
+});
+
+
+
     }
 
     /**
@@ -93,6 +114,7 @@ return new class extends Migration {
         Schema::dropIfExists('donation_categories');
         Schema::dropIfExists('donations');
         Schema::dropIfExists('fund_allocation');
+        Schema::dropIfExists('user_histories');
 
     }
 };

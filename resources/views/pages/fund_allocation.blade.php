@@ -11,18 +11,14 @@
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('success') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
 
                 @if (session('error'))
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         {{ session('error') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
 
@@ -41,17 +37,24 @@
                         <button type="submit" class="btn btn-primary">Search</button>
                     </form>
                     <div>
-                        <a href="{{ route('fund_allocations.export') }}" class="btn btn-secondary my-md-3 my-2">Export to CSV</a>
+                        <a href="{{ route('fund_allocations.export') }}" class="btn btn-secondary my-md-3 my-2">Export to
+                            CSV</a>
                         <button type="button" class="btn btn-primary my-md-3 my-2" data-toggle="modal"
                             data-target="#createAllocationModal">
                             Allocate Funds
                         </button>
+                        <button type="button" class="btn btn-secondary my-md-3 my-2" data-toggle="modal"
+                            data-target="#exportAllocationModal">
+                            Export with Filters
+                        </button>
                     </div>
+
                 </div>
 
                 <!-- Responsive DataTable -->
                 <div class="table-responsive" style="overflow-y: auto; height: 65vh; border: 1px solid #f2f2f2;">
-                    <table id="fundAllocationTable" class="table table-striped table-bordered table-hover" style="width:100%">
+                    <table id="fundAllocationTable" class="table table-striped table-bordered table-hover"
+                        style="width:100%">
                         <thead>
                             <tr>
                                 <th>Category Name</th>
@@ -73,8 +76,8 @@
                                     <td>
                                         <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
                                             data-target="#updateAllocationModal-{{ $allocation->id }}">Update</button>
-                                        <form action="{{ route('fund_allocations.destroy', $allocation->id) }}" method="POST"
-                                            style="display:inline-block;"
+                                        <form action="{{ route('fund_allocations.destroy', $allocation->id) }}"
+                                            method="POST" style="display:inline-block;"
                                             onsubmit="return confirm('Are you sure you want to delete this allocation?');">
                                             @csrf
                                             @method('DELETE')
@@ -97,10 +100,8 @@
                                                     <h5 class="modal-title"
                                                         id="updateAllocationModalLabel-{{ $allocation->id }}">
                                                         Update Allocation</h5>
-                                                    <button type="button" class="close" data-dismiss="modal"
-                                                        aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
+                                                    <button type="button" class="btn-close" data-dismiss="modal"
+                                                        aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="form-group">
@@ -108,22 +109,26 @@
                                                         <select class="form-control" id="category_id-{{ $allocation->id }}"
                                                             name="category_id" required>
                                                             @foreach ($categories as $category)
-                                                                <option value="{{ $category->id }}" {{ $category->id == $allocation->category_id ? 'selected' : '' }}>
+                                                                <option value="{{ $category->id }}"
+                                                                    {{ $category->id == $allocation->category_id ? 'selected' : '' }}>
                                                                     {{ $category->category_name }}
                                                                 </option>
                                                             @endforeach
                                                         </select>
                                                     </div>
                                                     <div class="form-group">
-                                                        <label for="project_name-{{ $allocation->id }}">Project Name</label>
+                                                        <label for="project_name-{{ $allocation->id }}">Project
+                                                            Name</label>
                                                         <input type="text" class="form-control"
                                                             id="project_name-{{ $allocation->id }}" name="project_name"
                                                             value="{{ $allocation->project_name }}" required>
                                                     </div>
                                                     <div class="form-group">
-                                                        <label for="allocated_amount-{{ $allocation->id }}">Allocated Amount</label>
+                                                        <label for="allocated_amount-{{ $allocation->id }}">Allocated
+                                                            Amount</label>
                                                         <input type="number" step="0.01" class="form-control"
-                                                            id="allocated_amount-{{ $allocation->id }}" name="allocated_amount"
+                                                            id="allocated_amount-{{ $allocation->id }}"
+                                                            name="allocated_amount"
                                                             value="{{ $allocation->allocated_amount }}" required>
                                                     </div>
                                                 </div>
@@ -141,18 +146,63 @@
                     </table>
                 </div>
 
+                <!-- Export Filter Modal -->
+                <div class="modal fade" id="exportAllocationModal" tabindex="-1" role="dialog"
+                    aria-labelledby="exportAllocationModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <form action="{{ route('fund_allocations.export') }}" method="GET">
+                                @csrf
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exportAllocationModalLabel">Export Fund Allocations</h5>
+                                    <button type="button" class="btn-close" data-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Select Category -->
+                                    <div class="form-group">
+                                        <label for="category_id">Category</label>
+                                        <select id="category_id" name="category_id" class="form-control">
+                                            <option value="">All Categories</option>
+                                            @foreach ($categories as $category)
+                                                <option value="{{ $category->id }}">{{ $category->category_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Date Range Filters -->
+                                    <div class="form-group">
+                                        <label for="start_date">Start Date</label>
+                                        <input type="date" id="start_date" name="start_date" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="end_date">End Date</label>
+                                        <input type="date" id="end_date" name="end_date" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Export</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
                 <!-- Create Allocation Modal -->
                 <div class="modal fade" id="createAllocationModal" tabindex="-1" role="dialog"
                     aria-labelledby="createAllocationModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
-                            <form id="createAllocationForm" method="POST" action="{{ route('fund_allocations.store') }}">
+                            <form id="createAllocationForm" method="POST"
+                                action="{{ route('fund_allocations.store') }}">
                                 @csrf
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="createAllocationModalLabel">Allocate Funds</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+                                    <button type="button" class="btn-close" data-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="form-group">
@@ -167,11 +217,13 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="project_name">Project Name</label>
-                                        <input type="text" class="form-control" id="project_name" name="project_name" required>
+                                        <input type="text" class="form-control" id="project_name" name="project_name"
+                                            required>
                                     </div>
                                     <div class="form-group">
                                         <label for="allocated_amount">Allocated Amount</label>
-                                        <input type="number" step="0.01" class="form-control" id="allocated_amount" name="allocated_amount" required>
+                                        <input type="number" step="0.01" class="form-control" id="allocated_amount"
+                                            name="allocated_amount" required>
                                     </div>
                                 </div>
                                 <div class="modal-footer">

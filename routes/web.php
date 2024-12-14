@@ -119,6 +119,7 @@ Route::middleware(['auth', 'verified'])
         Route::delete('/{fund_allocation}', [FundAllocationController::class, 'destroy'])->name('fund_allocations.destroy');
         Route::get('/search', [FundAllocationController::class, 'search'])->name('fund_allocations.search');
         Route::get('/fund-allocations/total', [FundAllocationController::class, 'totalAllocatedAmount'])->name('fund_allocations.total');
+        Route::get('/fund-allocations/balance', [FundAllocationController::class, 'remainingBalance'])->name('remaining_balance.balance');
         Route::get('/fund-allocations/export', [FundAllocationController::class, 'export'])->name('fund_allocations.export');
 
     });

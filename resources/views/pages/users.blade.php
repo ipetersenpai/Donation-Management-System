@@ -15,18 +15,14 @@
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('success') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
 
                 @if (session('error'))
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         {{ session('error') }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
 
@@ -35,7 +31,7 @@
                     </h3>
                 </div>
 
-                <div class="d-flex w-full flex-md-row flex-column justify-content-between">
+                <div class="d-flex w-full flex-md-row flex-column justify-content-between align-items-center">
                     <!-- Search Input -->
                     <form action="{{ route('users.search') }}" method="GET"
                         class="d-flex flex-sm-col flex-md-row gap-2 justify-content-start my-3">
@@ -45,10 +41,21 @@
                         </div>
                         <button type="submit" class="btn btn-primary">Search</button>
                     </form>
-                    <button type="button" class="btn btn-primary my-md-3 my-2" data-toggle="modal"
-                        data-target="#createUserModal">
-                        Create User
-                    </button>
+
+                    <!-- Buttons Group -->
+                    <div class="d-flex gap-2">
+                        <!-- Create User Button -->
+                        <button type="button" class="btn btn-primary my-md-3 my-2" data-toggle="modal"
+                            data-target="#createUserModal">
+                            Create User
+                        </button>
+
+                        <!-- Delete User History Button -->
+                        <button type="button" class="btn btn-secondary my-md-3 my-2" data-toggle="modal"
+                            data-target="#deleteUserHistoryModal">
+                            Changes History
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Responsive DataTable -->
@@ -127,8 +134,8 @@
                                                                 <label for="middle_name-{{ $user->id }}">Middle
                                                                     Name</label>
                                                                 <input type="text" class="form-control"
-                                                                    id="middle_name-{{ $user->id }}" name="middle_name"
-                                                                    value="{{ $user->middle_name }}">
+                                                                    id="middle_name-{{ $user->id }}"
+                                                                    name="middle_name" value="{{ $user->middle_name }}">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -267,9 +274,8 @@
                                 @csrf
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="createUserModalLabel">Create User</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
+                                    <button type="button" class="btn-close" data-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="row">
@@ -384,6 +390,73 @@
                         </div>
                     </div>
                 </div>
+                <!-- Modal for User History -->
+                <div class="modal fade" id="deleteUserHistoryModal" tabindex="-1"
+                    aria-labelledby="deleteUserHistoryModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteUserHistoryModalLabel">User History</h5>
+                                <button type="button" class="btn-close" data-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- User History Table -->
+                                <div style="max-height: 400px; overflow-y: auto;">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th style="min-width: 100px">User ID</th>
+                                                <th style="min-width: 250px">Name</th>
+                                                <th>Email</th>
+                                                <th>Role</th>
+                                                <th>Suffix</th>
+                                                <th>Birth Date</th>
+                                                <th>Contact No</th>
+                                                <th style="min-width: 280px">Home Address</th>
+                                                <th>Gender</th>
+                                                <th style="min-width: 140px">Verified Status</th>
+                                                <th>Action</th>
+                                                <th style="min-width: 130px">Action Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($userHistory as $history)
+                                                <tr>
+                                                    <td>{{ $history->user_id }}</td>
+                                                    <td>{{ $history->first_name }} {{ $history->middle_name }}
+                                                        {{ $history->last_name }}</td>
+                                                    <td>{{ $history->email }}</td>
+                                                    <td>{{ $history->role }}</td>
+                                                    <td>{{ $history->suffix }}</td>
+                                                    <td>{{ \Carbon\Carbon::parse($history->birth_date)->format('d-m-Y') }}
+                                                    </td>
+                                                    <td>{{ $history->contact_no }}</td>
+                                                    <td>{{ $history->home_address }}</td>
+                                                    <td>{{ $history->gender }}</td>
+                                                    <td>{{ $history->verified_status ? 'Verified' : 'Not Verified' }}</td>
+                                                    <td>{{ ucfirst($history->action) }}</td>
+                                                    <td>{{ \Carbon\Carbon::parse($history->action_at)->format('d-m-Y') }}
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="12" class="text-center">No user history available.</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
 
                 <!-- Pagination -->
                 <div class="d-flex justify-content-end mt-3">

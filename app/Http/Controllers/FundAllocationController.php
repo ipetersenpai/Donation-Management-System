@@ -7,6 +7,7 @@ use App\Models\DonationCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use League\Csv\Writer;
+use App\Models\Donation;
 use Illuminate\Support\Facades\Response as FacadeResponse;
 
 class FundAllocationController extends Controller
@@ -83,38 +84,72 @@ class FundAllocationController extends Controller
         return response()->json(['total_allocated_amount' => $totalAmount]);
     }
 
+    public function remainingBalance()
+{
+    // Fetch the total amount donated and total fund allocation
+    $totalAmountDonated = Donation::sum('amount');
+    $totalFundAllocated = FundAllocation::sum('allocated_amount');
+
+    // Calculate remaining balance
+    $remainingBalance =  $totalAmountDonated - $totalFundAllocated;
+
+    // Return data for dashboard
+    return response()->json([
+        'remaining_balance' => $remainingBalance,
+    ]);
+}
+
     // Exports the list of fund allocations as a CSV file.
-    public function export()
-    {
-        // Fetch all fund allocations with their associated category.
-        $allocations = FundAllocation::with('category')->get();
+    public function export(Request $request)
+{
+    // Validate input
+    $validated = $request->validate([
+        'start_date' => 'nullable|date',
+        'end_date' => 'nullable|date|after_or_equal:start_date',
+        'category_id' => 'nullable|exists:donation_categories,id',
+    ]);
 
-        // Creates a CSV writer instance from a string.
-        $csv = Writer::createFromString('');
-        // Inserts the header row into the CSV file.
-        $csv->insertOne(['Category Name', 'Project Name', 'Allocated Amount', 'Created At', 'Updated At']);
+    // Fetch fund allocations with optional filters
+    $allocationsQuery = FundAllocation::with('category');
 
-        // Loops through each fund allocation and inserts the data as rows in the CSV.
-        foreach ($allocations as $allocation) {
-            $csv->insertOne([
-                $allocation->category->category_name, // Category name from the related model
-                $allocation->project_name,
-                number_format($allocation->allocated_amount, 2), // Formats the allocated amount
-                $allocation->created_at->format('m-d-Y'), // Formats the created_at date
-                $allocation->updated_at->format('m-d-Y')  // Formats the updated_at date
-            ]);
-        }
-
-        // Streams the CSV content as a downloadable file.
-        return FacadeResponse::stream(
-            function () use ($csv) {
-                echo $csv;
-            },
-            200,
-            [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="fund_allocations.csv"',
-            ]
-        );
+    if ($request->filled('category_id')) {
+        $allocationsQuery->where('category_id', $request->category_id);
     }
+
+    if ($request->filled('start_date') && $request->filled('end_date')) {
+        $allocationsQuery->whereBetween('created_at', [
+            Carbon::parse($request->start_date)->startOfDay(),
+            Carbon::parse($request->end_date)->endOfDay(),
+        ]);
+    }
+
+    $allocations = $allocationsQuery->get();
+
+    // Create CSV
+    $csv = Writer::createFromString('');
+    $csv->insertOne(['Category Name', 'Project Name', 'Allocated Amount', 'Created At', 'Updated At']);
+
+    foreach ($allocations as $allocation) {
+        $csv->insertOne([
+            $allocation->category->category_name ?? 'Uncategorized',
+            $allocation->project_name,
+            number_format($allocation->allocated_amount, 2),
+            $allocation->created_at->format('m-d-Y'),
+            $allocation->updated_at->format('m-d-Y'),
+        ]);
+    }
+
+    // Stream the CSV content
+    return FacadeResponse::stream(
+        function () use ($csv) {
+            echo $csv;
+        },
+        200,
+        [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="fund_allocations.csv"',
+        ]
+    );
+}
+
 }
