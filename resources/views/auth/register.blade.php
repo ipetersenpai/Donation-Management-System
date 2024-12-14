@@ -164,12 +164,14 @@
                     <div id="step2" style="display: none;">
                         <h4 class="mb-4">Step 2: Contact Information</h4>
                         <div class="mb-3">
+                            <label for="birth_date" class="form-label">Birth Date</label>
                             <input type="date" class="form-control" id="birth_date" name="birth_date"
                                 value="{{ old('birth_date') }}" required>
                             @error('birth_date')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
+
                         <div class="mb-3">
                             <input type="text" class="form-control" id="contact_no" name="contact_no"
                                 placeholder="Contact No" value="{{ old('contact_no') }}" required>
