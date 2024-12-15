@@ -19,23 +19,28 @@ class UserController extends Controller
 }
 
 
-    public function search(Request $request)
-    {
-        $search = $request->input('search');
+public function search(Request $request)
+{
+    $search = $request->input('search');
+    $searchTerms = explode(' ', $search);
 
-        $searchTerms = explode(' ', $search);
+    // Search for users based on search terms
+    $users = User::where(function ($query) use ($searchTerms) {
+        foreach ($searchTerms as $term) {
+            $query
+                ->where('first_name', 'like', "%$term%")
+                ->orWhere('middle_name', 'like', "%$term%")
+                ->orWhere('last_name', 'like', "%$term%");
+        }
+    })->paginate(10);
 
-        $users = User::where(function ($query) use ($searchTerms) {
-            foreach ($searchTerms as $term) {
-                $query
-                    ->where('first_name', 'like', "%$term%")
-                    ->orWhere('middle_name', 'like', "%$term%")
-                    ->orWhere('last_name', 'like', "%$term%");
-            }
-        })->paginate(10);
+    // Fetch all user history
+    $userHistory = UserHistory::all();
 
-        return view('pages.users', compact('users'));
-    }
+    // Pass users and userHistory to the view
+    return view('pages.users', compact('users', 'userHistory'));
+}
+
     // Create a User
     public function store(Request $request)
     {
