@@ -69,41 +69,45 @@ class DonationController extends Controller
     // Searches for donations based on the search input, allowing queries to match against user names,
     // donation categories, reference numbers, payment options, and amounts.
     public function searchDonations(Request $request)
-    {
-        $query = $request->input('search');
+{
+    $query = $request->input('search');
 
-        // Fetch donations based on search query
-        $donations = Donation::with(['user', 'category'])
-            ->where(function ($q) use ($query) {
-                // Search for donations where the user's first, middle, or last name matches the query.
-                $q->whereHas('user', function ($q) use ($query) {
-                    $q->where('first_name', 'like', '%' . $query . '%')
-                        ->orWhere('middle_name', 'like', '%' . $query . '%')
-                        ->orWhere('last_name', 'like', '%' . $query . '%');
-                })
-                    // Or search donations where the non-member's full name matches the query.
-                    ->orWhere('non_member_full_name', 'like', '%' . $query . '%');
+    // Fetch donations based on search query
+    $donations = Donation::with(['user', 'category'])
+        ->where(function ($q) use ($query) {
+            // Search for donations where the user's first, middle, or last name matches the query.
+            $q->whereHas('user', function ($q) use ($query) {
+                $q->where('first_name', 'like', '%' . $query . '%')
+                    ->orWhere('middle_name', 'like', '%' . $query . '%')
+                    ->orWhere('last_name', 'like', '%' . $query . '%');
             })
-            // Search donations where the category name matches the query.
-            ->orWhereHas('category', function ($q) use ($query) {
-                $q->where('category_name', 'like', '%' . $query . '%');
-            })
-            // Search donations based on reference number, payment option, or donation amount.
-            ->orWhere('reference_no', 'like', '%' . $query . '%')
-            ->orWhere('payment_option', 'like', '%' . $query . '%')
-            ->orWhere('amount', 'like', '%' . $query . '%')
-            ->select('user_id', 'non_member_full_name', 'category_id', 'amount', 'reference_no', 'payment_option', 'created_at')
-            ->paginate(25);
+            // Or search donations where the non-member's full name matches the query.
+            ->orWhere('non_member_full_name', 'like', '%' . $query . '%');
+        })
+        // Search donations where the category name matches the query.
+        ->orWhereHas('category', function ($q) use ($query) {
+            $q->where('category_name', 'like', '%' . $query . '%');
+        })
+        // Search donations based on reference number, payment option, or donation amount.
+        ->orWhere('reference_no', 'like', '%' . $query . '%')
+        ->orWhere('payment_option', 'like', '%' . $query . '%')
+        ->orWhere('amount', 'like', '%' . $query . '%')
+        ->select('user_id', 'non_member_full_name', 'category_id', 'amount', 'reference_no', 'payment_option', 'created_at')
+        ->paginate(25);
 
-        // Fetch members for modal
-        $members = User::where('role', 'Member')->get();
+    // Fetch members for modal
+    $members = User::where('role', 'Member')->get();
 
-        // Fetch categories for modal
-        $categories = DonationCategory::all();
+    // Fetch categories for modal
+    $categories = DonationCategory::all();
 
-        // Pass donations, members, and categories to the view
-        return view('pages.history', compact('donations', 'members', 'categories'));
-    }
+    // Fetch distinct non-member names from donations
+    $nonMembers = Donation::select('id', 'non_member_full_name')->whereNull('user_id')->distinct()->get();
+
+    // Pass donations, members, categories, and nonMembers to the view
+    return view('pages.history', compact('donations', 'members', 'categories', 'nonMembers'));
+}
+
 
     // Counts the distinct number of users who have made a donation.
     public function countUsersWhoDonated()
