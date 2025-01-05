@@ -113,10 +113,8 @@
                                                 <div class="modal-header">
                                                     <h5 class="modal-title" id="updateUserModalLabel-{{ $user->id }}">
                                                         Update User: {{ $user->first_name }} {{ $user->last_name }}</h5>
-                                                    <button type="button" class="close" data-dismiss="modal"
-                                                        aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
+                                                        <button type="button" class="btn-close" data-dismiss="modal"
+                                                        aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="row">
@@ -218,6 +216,9 @@
                                                                     <option value="Admin"
                                                                         {{ $user->role == 'Admin' ? 'selected' : '' }}>
                                                                         Admin</option>
+                                                                    <option value="Personnel"
+                                                                        {{ $user->role == 'Personnel' ? 'selected' : '' }}>
+                                                                        Personnel</option>
                                                                 </select>
                                                             </div>
                                                         </div>
@@ -357,6 +358,11 @@
                                                         {{ $user->role == 'Member' ? 'selected' : '' }}>Member</option>
                                                     <option value="Admin" {{ $user->role == 'Admin' ? 'selected' : '' }}>
                                                         Admin</option>
+
+                                                    <option value="Admin"
+                                                        {{ $user->role == 'Personnel' ? 'selected' : '' }}>
+                                                        Personnel</option>
+
                                                 </select>
                                             </div>
                                         </div>
