@@ -35,8 +35,8 @@ class AuthController extends Controller
                 ]);
             }
 
-            // If the user is not an Admin, they are logged out and given a message.
-            if (!$user->hasRole('Admin')) {
+            // If the user is not an Admin AND not Personnel, they are logged out and given a message.
+            if (!$user->hasRole('Admin') && !$user->hasRole('Personnel')) {
                 Auth::logout();
 
                 return back()->withErrors([
@@ -66,54 +66,56 @@ class AuthController extends Controller
 
     // Handles the registration process by validating the input data and creating a new user.
     public function register(Request $request)
-{
-    $request->validate([
-        'first_name' => 'required|string|max:255',
-        'middle_name' => 'nullable|string|max:255',
-        'last_name' => 'nullable|string|max:255',
-        'suffix' => 'nullable|string|max:255',
-        'birth_date' => 'nullable|date',
-        'contact_no' => 'nullable|string|max:255',
-        'home_address' => 'nullable|string|max:255',
-        'gender' => 'nullable|string|max:6',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => [
-            'required',
-            'string',
-            'min:8',
-            'confirmed',
-            'regex:/^(?=.*[A-Z])(?=.*\d).+$/' // Enforce at least one uppercase letter and one number
-        ],
-    ], [
-        'password.regex' => 'The password must contain at least one uppercase letter and one number.',
-    ]);
+    {
+        $request->validate(
+            [
+                'first_name' => 'required|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'last_name' => 'nullable|string|max:255',
+                'suffix' => 'nullable|string|max:255',
+                'birth_date' => 'nullable|date',
+                'contact_no' => 'nullable|string|max:255',
+                'home_address' => 'nullable|string|max:255',
+                'gender' => 'nullable|string|max:6',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8',
+                    'confirmed',
+                    'regex:/^(?=.*[A-Z])(?=.*\d).+$/', // Enforce at least one uppercase letter and one number
+                ],
+            ],
+            [
+                'password.regex' => 'The password must contain at least one uppercase letter and one number.',
+            ],
+        );
 
-    // Creates a new user after hashing the password for security.
-    $user = User::create([
-        'first_name' => $request->first_name,
-        'middle_name' => $request->middle_name,
-        'last_name' => $request->last_name,
-        'suffix' => $request->suffix,
-        'birth_date' => $request->birth_date,
-        'contact_no' => $request->contact_no,
-        'home_address' => $request->home_address,
-        'gender' => $request->gender,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-    ]);
+        // Creates a new user after hashing the password for security.
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'last_name' => $request->last_name,
+            'suffix' => $request->suffix,
+            'birth_date' => $request->birth_date,
+            'contact_no' => $request->contact_no,
+            'home_address' => $request->home_address,
+            'gender' => $request->gender,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
 
-    // If user creation is successful, a verification email is sent, and the user is redirected to the login page.
-    if ($user) {
-        Mail::to($user->email)->send(new CustomVerificationMail($user));
-        return redirect()->route('login')->with('success', 'Registration successful. Please check your email for verification.');
-    } else {
-        // In case of registration failure, return the form with input data and error messages.
-        return back()
-            ->withInput()
-            ->withErrors(['registration_failed' => 'Registration failed. Please try again.']);
+        // If user creation is successful, a verification email is sent, and the user is redirected to the login page.
+        if ($user) {
+            Mail::to($user->email)->send(new CustomVerificationMail($user));
+            return redirect()->route('login')->with('success', 'Registration successful. Please check your email for verification.');
+        } else {
+            // In case of registration failure, return the form with input data and error messages.
+            return back()
+                ->withInput()
+                ->withErrors(['registration_failed' => 'Registration failed. Please try again.']);
+        }
     }
-}
-
 
     // This method verifies the email using a custom verification link. It ensures the link is valid and the email hasn't already been verified.
     public function verifyEmail(EmailVerificationRequest $request)
