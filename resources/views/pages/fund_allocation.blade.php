@@ -37,15 +37,13 @@
                         <button type="submit" class="btn btn-primary">Search</button>
                     </form>
                     <div>
-                        <a href="{{ route('fund_allocations.export') }}" class="btn btn-secondary my-md-3 my-2">Export to
-                            CSV</a>
                         <button type="button" class="btn btn-primary my-md-3 my-2" data-toggle="modal"
                             data-target="#createAllocationModal">
                             Allocate Funds
                         </button>
                         <button type="button" class="btn btn-secondary my-md-3 my-2" data-toggle="modal"
                             data-target="#exportAllocationModal">
-                            Export with Filters
+                            Export to PDF
                         </button>
                     </div>
 
@@ -151,10 +149,10 @@
                     aria-labelledby="exportAllocationModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
-                            <form action="{{ route('fund_allocations.export') }}" method="GET">
+                            <form action="{{ route('fund_allocations.exportToPDF') }}" method="GET">
                                 @csrf
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="exportAllocationModalLabel">Export Fund Allocations</h5>
+                                    <h5 class="modal-title">Export Fund Allocations</h5>
                                     <button type="button" class="btn-close" data-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>

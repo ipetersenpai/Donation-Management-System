@@ -9,7 +9,7 @@
 
 
     <form id="profile-form" class="open-menu d-flex align-items-center justify-content-center gap-1" <p>Hello,
-        {{ auth()->user()->first_name }}!</p>
+        Admin!</p>
         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
             class="bi bi-person-circle" viewBox="0 0 16 16">
             <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
@@ -68,14 +68,16 @@
                 <div class="modal-body">
                     <div class="form-group mb-3">
                         <label for="new_password" class="form-label">New Password</label>
-                        <input type="password" class="form-control @error('new_password') is-invalid @enderror" id="new_password" name="new_password" required>
+                        <input type="password" class="form-control @error('new_password') is-invalid @enderror"
+                            id="new_password" name="new_password" required>
                         @error('new_password')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="form-group mb-3">
                         <label for="confirm_password" class="form-label">Confirm New Password</label>
-                        <input type="password" class="form-control @error('new_password') is-invalid @enderror" id="confirm_password" name="new_password_confirmation" required>
+                        <input type="password" class="form-control @error('new_password') is-invalid @enderror"
+                            id="confirm_password" name="new_password_confirmation" required>
                         @error('new_password_confirmation')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -122,36 +124,39 @@
     });
 
 
-    $(document).ready(function () {
-    $('#change-password-form').on('submit', function (e) {
-        e.preventDefault(); // Prevent the form from submitting normally
+    $(document).ready(function() {
+        $('#change-password-form').on('submit', function(e) {
+            e.preventDefault(); // Prevent the form from submitting normally
 
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: $(this).serialize(),
-            success: function (response) {
-                if (response.success) {
-                    alert('Password updated successfully!');
-                    $('#changePasswordModal').modal('hide'); // Hide modal
-                }
-            },
-            error: function (xhr) {
-                // Handle validation errors
-                if (xhr.status === 422) {
-                    const errors = xhr.responseJSON.errors;
-                    for (const field in errors) {
-                        const errorMessage = errors[field][0]; // Get the first error message
-                        alert(errorMessage); // Display error message (you may want to use a better method)
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        alert('Password updated successfully!');
+                        $('#changePasswordModal').modal('hide'); // Hide modal
                     }
-                } else {
-                    alert('Failed to update password. Please try again.');
+                },
+                error: function(xhr) {
+                    // Handle validation errors
+                    if (xhr.status === 422) {
+                        const errors = xhr.responseJSON.errors;
+                        for (const field in errors) {
+                            const errorMessage = errors[field][
+                                0
+                            ]; // Get the first error message
+                            alert(
+                                errorMessage
+                                ); // Display error message (you may want to use a better method)
+                        }
+                    } else {
+                        alert('Failed to update password. Please try again.');
+                    }
                 }
-            }
+            });
         });
     });
-});
-
 </script>
 
 <style>

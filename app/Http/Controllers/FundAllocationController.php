@@ -9,6 +9,8 @@ use Illuminate\Http\Response;
 use League\Csv\Writer;
 use App\Models\Donation;
 use Illuminate\Support\Facades\Response as FacadeResponse;
+use Carbon\Carbon; // Import Carbon
+use Barryvdh\DomPDF\Facade\Pdf; // Import DomPDF
 
 class FundAllocationController extends Controller
 {
@@ -85,71 +87,55 @@ class FundAllocationController extends Controller
     }
 
     public function remainingBalance()
-{
-    // Fetch the total amount donated and total fund allocation
-    $totalAmountDonated = Donation::sum('amount');
-    $totalFundAllocated = FundAllocation::sum('allocated_amount');
+    {
+        // Fetch the total amount donated and total fund allocation
+        $totalAmountDonated = Donation::sum('amount');
+        $totalFundAllocated = FundAllocation::sum('allocated_amount');
 
-    // Calculate remaining balance
-    $remainingBalance =  $totalAmountDonated - $totalFundAllocated;
+        // Calculate remaining balance
+        $remainingBalance =  $totalAmountDonated - $totalFundAllocated;
 
-    // Return data for dashboard
-    return response()->json([
-        'remaining_balance' => $remainingBalance,
-    ]);
-}
+        // Return data for dashboard
+        return response()->json([
+            'remaining_balance' => $remainingBalance,
+        ]);
+    }
 
     // Exports the list of fund allocations as a CSV file.
-    public function export(Request $request)
-{
-    // Validate input
-    $validated = $request->validate([
-        'start_date' => 'nullable|date',
-        'end_date' => 'nullable|date|after_or_equal:start_date',
-        'category_id' => 'nullable|exists:donation_categories,id',
-    ]);
-
-    // Fetch fund allocations with optional filters
-    $allocationsQuery = FundAllocation::with('category');
-
-    if ($request->filled('category_id')) {
-        $allocationsQuery->where('category_id', $request->category_id);
-    }
-
-    if ($request->filled('start_date') && $request->filled('end_date')) {
-        $allocationsQuery->whereBetween('created_at', [
-            Carbon::parse($request->start_date)->startOfDay(),
-            Carbon::parse($request->end_date)->endOfDay(),
+    // Exports the list of fund allocations as a PDF file.
+    public function exportToPDF(Request $request)
+    {
+        // Validate input
+        $validated = $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'category_id' => 'nullable|exists:donation_categories,id',
         ]);
+
+        // Fetch fund allocations with optional filters
+        $allocationsQuery = FundAllocation::with('category');
+
+        if ($request->filled('category_id')) {
+            $allocationsQuery->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $allocationsQuery->whereBetween('created_at', [
+                Carbon::parse($request->start_date)->startOfDay(),
+                Carbon::parse($request->end_date)->endOfDay(),
+            ]);
+        }
+
+        $allocations = $allocationsQuery->get();
+
+        // Get the start and end dates for the view
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
+        // Load data into PDF view
+        $pdf = Pdf::loadView('exports.fund_allocations_pdf', compact('allocations', 'start_date', 'end_date'));
+
+        // Return PDF for download
+        return $pdf->download('fund_allocations.pdf');
     }
-
-    $allocations = $allocationsQuery->get();
-
-    // Create CSV
-    $csv = Writer::createFromString('');
-    $csv->insertOne(['Category Name', 'Project Name', 'Allocated Amount', 'Created At', 'Updated At']);
-
-    foreach ($allocations as $allocation) {
-        $csv->insertOne([
-            $allocation->category->category_name ?? 'Uncategorized',
-            $allocation->project_name,
-            number_format($allocation->allocated_amount, 2),
-            $allocation->created_at->format('m-d-Y'),
-            $allocation->updated_at->format('m-d-Y'),
-        ]);
-    }
-
-    // Stream the CSV content
-    return FacadeResponse::stream(
-        function () use ($csv) {
-            echo $csv;
-        },
-        200,
-        [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="fund_allocations.csv"',
-        ]
-    );
-}
-
 }

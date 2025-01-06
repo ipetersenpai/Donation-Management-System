@@ -111,10 +111,13 @@
                                 <div class="card card-layout">
                                     <div class="d-flex flex-column justify-items-center justify-content-center"
                                         style="min-width:40%; background-color: #9f0cd0; color:white">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-cash-stack mx-auto" viewBox="0 0 16 16">
-                                            <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
-                                            <path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z"/>
-                                          </svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"
+                                            fill="currentColor" class="bi bi-cash-stack mx-auto" viewBox="0 0 16 16">
+                                            <path
+                                                d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4" />
+                                            <path
+                                                d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z" />
+                                        </svg>
                                     </div>
                                     <div class="card-body">
                                         <h5 class="card-title" style="font-weight: bold">Remaining Balance</h5>
@@ -134,6 +137,8 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
 
     <script>
         $(document).ready(function() {
@@ -181,7 +186,42 @@
                 var ctx = document.getElementById('pieChart').getContext('2d');
                 var myPieChart = new Chart(ctx, {
                     type: 'pie',
-                    data: chartData
+                    data: chartData,
+                    options: {
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        var dataset = tooltipItem.dataset;
+                                        var total = dataset.data.reduce((previousValue,
+                                                currentValue) => previousValue +
+                                            currentValue);
+                                        var value = dataset.data[tooltipItem.dataIndex];
+                                        var percentage = ((value / total) * 100).toFixed(
+                                            2); // Calculate percentage
+                                        return tooltipItem.label + ': ' + value + ' (' +
+                                            percentage + '%)';
+                                    }
+                                }
+                            },
+                            datalabels: {
+                                formatter: function(value, context) {
+                                    var dataset = context.chart.data.datasets[context
+                                        .datasetIndex];
+                                    var total = dataset.data.reduce((previousValue,
+                                        currentValue) => previousValue + currentValue);
+                                    var percentage = ((value / total) * 100).toFixed(
+                                        2); // Calculate percentage
+                                    return percentage + '%'; // Display percentage
+                                },
+                                color: '#fff',
+                                font: {
+                                    weight: 'bold',
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
                 });
             });
         });

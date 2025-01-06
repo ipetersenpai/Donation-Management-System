@@ -121,6 +121,8 @@ Route::middleware(['auth', 'verified'])
         Route::get('/fund-allocations/total', [FundAllocationController::class, 'totalAllocatedAmount'])->name('fund_allocations.total');
         Route::get('/fund-allocations/balance', [FundAllocationController::class, 'remainingBalance'])->name('remaining_balance.balance');
         Route::get('/fund-allocations/export', [FundAllocationController::class, 'export'])->name('fund_allocations.export');
+        Route::get('/fund-allocations/export/pdf', [FundAllocationController::class, 'exportToPDF'])->name('fund_allocations.exportToPDF');
+
 
     });
 // profile dashboard route
